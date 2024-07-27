@@ -1,10 +1,22 @@
 <template>
-  <VueFlow :nodes="nodes" :edges="edges"></VueFlow>
+  <VueFlow :nodes="nodes" :edges="edges">
+    <template #node-sendRequest="sendRequestProps">
+      <FlowsSendRequestNode
+        v-bind="sendRequestProps"
+        :collections="restCollections"
+      />
+    </template>
+
+    <Background />
+  </VueFlow>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue"
 import { VueFlow } from "@vue-flow/core"
+import { Background } from "@vue-flow/background"
+import { restCollections$ } from "~/newstore/collections"
+import { useReadonlyStream } from "~/composables/stream"
 
 const nodes = ref([
   {
@@ -20,7 +32,7 @@ const nodes = ref([
   },
   {
     id: "3",
-    type: "output",
+    type: "sendRequest",
     position: { x: 400, y: 200 },
     data: { label: "Node 3" },
   },
@@ -36,9 +48,11 @@ const edges = ref([
     id: "e2->3",
     source: "2",
     target: "3",
-    animated: true,
+    targetHandle: "target-from",
   },
 ])
+
+const restCollections = useReadonlyStream(restCollections$, [], "deep")
 </script>
 
 <style>
